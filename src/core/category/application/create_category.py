@@ -12,6 +12,7 @@ class CreateCategoryRequest:
     description: str = ""
     is_active: bool = True
 
+@dataclass
 class CreateCategoryResponse:
     id: UUID
 
@@ -30,4 +31,4 @@ class CreateCategory:
             raise InvalidCategoryData(err)
 
         self.repository.save(category)
-        return category.id
+        return CreateCategoryResponse(id=category.id)
