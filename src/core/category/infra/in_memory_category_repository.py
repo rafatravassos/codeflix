@@ -1,6 +1,6 @@
 from uuid import UUID
 from src.core.category.domain.category import Category
-from src.core.category.application.category_repository import CategoryRepository
+from src.core.category.application.use_cases.category_repository import CategoryRepository
 
 
 class InMemoryCategoryRepository(CategoryRepository):
@@ -15,3 +15,7 @@ class InMemoryCategoryRepository(CategoryRepository):
             if category.id == id:
                 return category
         return None
+    
+    def delete(self, id: UUID) -> None:
+        category = self.get_by_id(id)
+        self.categories.remove(category)
