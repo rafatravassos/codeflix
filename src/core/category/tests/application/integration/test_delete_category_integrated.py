@@ -23,6 +23,7 @@ class TestDeleteCategory:
             id = category_filme.id)
         
         assert repository.get_by_id(category_filme.id) is not None
+        
         response = use_case.execute(request)
         assert repository.get_by_id(category_filme.id) is None
         assert response is None
