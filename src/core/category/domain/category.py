@@ -10,6 +10,7 @@ class Category:
 
     def __post_init__(self):
         self.validate()
+        pass
 
     def validate(self):
         if len(self.name) > 255:

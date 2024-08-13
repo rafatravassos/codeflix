@@ -9,19 +9,19 @@ class DjangoORMCategoryRepository(CategoryRepository):
 
     def save(self, category: Category) -> None:
         self.category_model.objects.create(
-            id=category.id,
+            id = category.id,
             name=category.name,
             description=category.description,
-            is_active=category.is_active)
+            is_active=category.is_active,)
 
     def get_by_id(self, id: UUID) -> Category | None:
         try:
             category_orm = self.category_model.objects.get(id=id)
             return Category(
-                category_orm.id,
-                category_orm.name,
-                category_orm.description,
-                category_orm.is_active)
+                id=category_orm.id,
+                name=category_orm.name,
+                description=category_orm.description,
+                is_active=category_orm.is_active)
         except self.category_model.DoesNotExist:
             return None
 
