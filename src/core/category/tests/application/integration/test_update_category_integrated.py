@@ -3,37 +3,36 @@ import uuid
 
 import pytest
 
-from src.core.category.application.use_cases.exceptions import CategoryNotFound, InvalidCategoryData
+from src.core.category.application.use_cases.exceptions import CategoryNotFound, InvalidCategory, InvalidCategoryData
 from src.core.category.application.use_cases.update_category import UpdateCategory, UpdateCategoryRequest
 from src.core.category.domain.category import Category
 from src.core.category.infra.in_memory_category_repository import InMemoryCategoryRepository
 
 
 class TestUpdateCategory:
-    def test_can_update_category_name_and_description(self):
+    def test_update_category_with_provided_fields(self):
         category = Category(
-            id=uuid.uuid4(),
             name="Filme",
-            description="Categoria para filmes",
-            is_active=True,
+            description="Categoria de filmes",
         )
         repository = InMemoryCategoryRepository()
-        repository.save(category)
-
-
+        repository.save(category=category)  # Usando o próprio repositório pra salvar
         use_case = UpdateCategory(repository=repository)
+
         request = UpdateCategoryRequest(
             id=category.id,
-            name="Série",
-            description = "Categoria Série"
+            name="Séries",
+            description="Séries de filmes",
+            is_active=False,
         )
-
         response = use_case.execute(request)
 
         updated_category = repository.get_by_id(category.id)
-        assert updated_category.name == "Série"
-        assert updated_category.description == "Categoria Série"
-    
+        assert response is None
+        assert updated_category.name == "Séries"
+        assert updated_category.description == "Séries de filmes"
+        assert updated_category.is_active is False
+
     def test_update_category_not_found(self):
 
         category = Category(
@@ -74,5 +73,5 @@ class TestUpdateCategory:
             description = ""
         )
 
-        with pytest.raises(InvalidCategoryData) as exc:
+        with pytest.raises(InvalidCategory) as exc:
             response = use_case.execute(request)

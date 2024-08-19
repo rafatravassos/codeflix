@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from uuid import UUID
 from src.core.category.domain.category_repository import CategoryRepository
-from src.core.category.application.use_cases.exceptions import CategoryNotFound, InvalidCategoryData
+from src.core.category.application.use_cases.exceptions import CategoryNotFound, InvalidCategory, InvalidCategoryData
 from src.core.category.domain.category import Category
+
 
 @dataclass
 class UpdateCategoryRequest:
@@ -17,36 +18,34 @@ class UpdateCategory:
         self.repository = repository
 
     def execute(self, request: UpdateCategoryRequest) :
+        """
+        - Busca categoria por ID
+        - Atualiza categoria com os valores passados
+        - Ativar/desativar a categoria
+        - Salvar essa categoria
+        """
         category = self.repository.get_by_id(request.id)
         if category is None:
-            raise CategoryNotFound(f"Category with id {request.id} not found.") 
-        
-        current_name = category.name
-        current_description = category.description
-        current_activation = category.is_active
+            raise CategoryNotFound(f"Category with {request.id} not found")
 
-        if request.name is not None:
-            current_name = request.name
-        if request.description is not None:
-            current_description = request.description
-        if request.is_active is True:
-            category.activate()
-
-        if request.is_active is False:
-            category.deactivate()
-
-        
         try:
-            category_temp = Category(
-                id=request.id,
-                name=current_name,
-                description=current_description,
-                is_active=current_activation
-            )
-        except ValueError as err:
-            raise InvalidCategoryData(err)
+            if request.is_active is True:
+                category.activate()
 
-        category.update_category(
-            name=current_name, 
-            description=current_description
-            )
+            if request.is_active is False:
+                category.deactivate()
+
+            current_name = category.name
+            current_description = category.description
+
+            if request.name is not None:
+                current_name = request.name
+
+            if request.description is not None:
+                current_description = request.description
+
+            category.update_category(name=current_name, description=current_description)
+        except ValueError as error:
+            raise InvalidCategory(error)
+
+        self.repository.update(category)
