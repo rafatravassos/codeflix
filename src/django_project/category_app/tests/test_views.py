@@ -233,3 +233,41 @@ class TestDeleteAPI:
         assert category_repository.get_by_id(category_movie.id) is None
         assert category_repository.list() == []
 
+@pytest.mark.django_db
+class TestPartialUpdate:
+    def test_update_only_name(self,
+            category_movie: Category,
+            category_repository: DjangoORMCategoryRepository,
+        ):
+        category_repository.save(category_movie)
+
+        url = f"/api/categories/{category_movie.id}/"
+        response = APIClient().patch(
+            url,
+            data={
+                "name": "Movie Updated",
+            },
+        )
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        updated_category = category_repository.get_by_id(category_movie.id)
+        assert updated_category.name == "Movie Updated"
+        assert updated_category.description == category_movie.description
+
+    def test_update_only_description(self,
+            category_movie: Category,
+            category_repository: DjangoORMCategoryRepository,
+        ):
+        category_repository.save(category_movie)
+
+        url = f"/api/categories/{category_movie.id}/"
+        response = APIClient().patch(
+            url,
+            data={
+                "description": "Description Updated",
+            },
+        )
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        updated_category = category_repository.get_by_id(category_movie.id)
+        assert updated_category.name == category_movie.name
+        assert updated_category.description == "Description Updated"
+        
